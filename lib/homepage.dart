@@ -259,7 +259,9 @@ class _HomePageState extends State<HomePage> {
           _textController.text = extractedNumbers[0].substring(2);
         }
       });
-    } catch (e) {}
+    } catch (e) {
+      _textController.text = "Error in auto number detection";
+    }
   }
 
   @override
@@ -308,14 +310,15 @@ class _HomePageState extends State<HomePage> {
                       frequency = '';
                     });
                   },
-                  icon: Icon(Icons.clear),
+                  icon: const Icon(Icons.clear),
                 ),
               ),
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
               onPressed: _pickImage,
-              child: const Text('Camera'),
+              icon: const Icon(Icons.camera_alt),
+              label: const Text('Camera'),
               style: ElevatedButton.styleFrom(
                 primary: Colors.orange[200],
               ),
