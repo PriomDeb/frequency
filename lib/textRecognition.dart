@@ -16,7 +16,7 @@ class _TextRecognitionfromImageState extends State<TextRecognitionfromImage> {
 
   Future<void> _pickImage() async {
     final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+        await ImagePicker().pickImage(source: ImageSource.camera);
 
     if (pickedFile != null) {
       setState(() {
@@ -33,7 +33,18 @@ class _TextRecognitionfromImageState extends State<TextRecognitionfromImage> {
         await textRecognizer.processImage(inputImage);
 
     String extractedText = recognizedText.text;
-    print(extractedText);
+
+    RegExp regExp = RegExp(r"\b(?:\+?88)?(?:017|013|015|016|018)\d{8}\b");
+    Iterable<Match> matches = regExp.allMatches(extractedText);
+
+    List<String> extractedNumbers = [];
+    for (Match match in matches) {
+      extractedNumbers.add(match.group(0)!);
+    }
+
+    print(extractedNumbers[0].substring(
+      2,
+    ));
   }
 
   @override

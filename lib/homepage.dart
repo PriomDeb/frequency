@@ -199,9 +199,13 @@
 //   }
 // }
 
+import 'dart:io';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'imagetotext.dart';
+import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -214,6 +218,49 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _textController = TextEditingController();
 
   String frequency = '';
+
+  File? _imageFile;
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+      _processImage();
+    }
+  }
+
+  Future<void> _processImage() async {
+    final inputImage = InputImage.fromFilePath(_imageFile!.path);
+    final textRecognizer = TextRecognizer();
+    final RecognizedText recognizedText =
+        await textRecognizer.processImage(inputImage);
+
+    String extractedText = recognizedText.text;
+
+    RegExp regExp = RegExp(r"\b(?:\+?88)?(?:017|013|015|016|018)\d{8}\b");
+    Iterable<Match> matches = regExp.allMatches(extractedText);
+
+    List<String> extractedNumbers = [];
+    for (Match match in matches) {
+      extractedNumbers.add(match.group(0)!);
+    }
+
+    try {
+      print(extractedNumbers[0]);
+
+      setState(() {
+        if (!extractedNumbers[0].contains('88')) {
+          _textController.text = extractedNumbers[0];
+        } else {
+          _textController.text = extractedNumbers[0].substring(2);
+        }
+      });
+    } catch (e) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -266,6 +313,14 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _pickImage,
+              child: const Text('Camera'),
+              style: ElevatedButton.styleFrom(
+                primary: Colors.orange[200],
+              ),
+            ),
+            // SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 setState(() {
